@@ -1,38 +1,53 @@
 #!/usr/bin/env bash
 set -eux
 
-# 1) Instal·lem git i ssh-client si no existeixen
+# ── 0) OPCIONAL: Proxy corporatiu (deixa-ho comentat si no cal)
+# export http_proxy="http://PROXY_HOST:PROXY_PORT"
+# export https_proxy="$http_proxy"
+# git config --global http.proxy  "$http_proxy"
+# git config --global https.proxy "$https_proxy"
+
+# ── 1) Instal·la git i ssh-client si cal
 if ! command -v git >/dev/null 2>&1; then
   apt-get update
-  apt-get install -y git openssh-client
+  apt-get install -y git openssh-client netcat
 fi
 
-# 2) Configurem l’agent SSH
+# ── 2) Si no és un repo git, clona’l
+if [ ! -d ".git" ]; then
+  git clone git@github.com:PlayNuzic/encapsulated.git .
+fi
+
+# ── 3) Configurem l’agent SSH i la clau
 eval "$(ssh-agent -s)"
 
-# 3) La clau privada ha d’estar disponible en una variable d’entorn
-#    Ex: export SSH_KEY="$(cat ~/.ssh/id_ed25519)"
+# Tria automàticament ED25519 o RSA
 if [ -n "${SSH_KEY-}" ]; then
-  mkdir -p ~/.ssh
-  echo "$SSH_KEY" > ~/.ssh/id_ed25519
-  chmod 600 ~/.ssh/id_ed25519
-  ssh-add ~/.ssh/id_ed25519
+  :
+elif [ -f "${HOME}/.ssh/id_ed25519" ]; then
+  export SSH_KEY="$(cat "${HOME}/.ssh/id_ed25519")"
+elif [ -f "${HOME}/.ssh/id_rsa" ]; then
+  export SSH_KEY="$(cat "${HOME}/.ssh/id_rsa")"
 else
-  echo "ERROR: la variable SSH_KEY no està definida" >&2
+  echo "ERROR: no s'ha trobat cap clau SSH a ~/.ssh" >&2
   exit 1
 fi
 
-# 4) Afegim GitHub a known_hosts per evitar prompts
+mkdir -p ~/.ssh
+echo "$SSH_KEY" > ~/.ssh/id_ed25519
+chmod 600 ~/.ssh/id_ed25519
+ssh-add ~/.ssh/id_ed25519
+
+# ── 4) Afegim GitHub a known_hosts
 ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-# 5) Configurem el remote origin si cal
-cd "$(git rev-parse --show-toplevel)"
+# ── 5) Configurem remote origin si no existeix
 if ! git remote | grep -q origin; then
   git remote add origin git@github.com:PlayNuzic/encapsulated.git
 fi
 
-# 6) Assegura’t d’estar a la branca correcta
-git fetch origin
+# ── 6) Baixa totes les branques i canvia a aleatorizador
+git fetch --all
 git checkout aleatorizador
 
-echo "=== Entorn configurat. Ara es pot fer git push origin aleatorizador ==="
+echo "=== Entorn configurat. Ja pots fer git push origin aleatorizador ==="
