@@ -41,10 +41,16 @@ ssh-add ~/.ssh/id_ed25519
 # ── 4) Afegim GitHub a known_hosts
 ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-# ── 5) Configurem remote origin si no existeix
-if ! git remote | grep -q origin; then
-  git remote add origin git@github.com:PlayNuzic/encapsulated.git
+# ── 5.1) Autenticació via GitHub CLI ───────────────────────
+if ! command -v gh >/dev/null 2>&1; then
+  apt-get update -y && apt-get install -y gh
 fi
+
+echo "Autenticant amb GitHub CLI…"
+echo "$GITHUB_TOKEN" | gh auth login --with-token
+gh auth status
+
+
 
 # ── 6) Baixa totes les branques i canvia a aleatorizador
 git fetch --all
