@@ -50,4 +50,7 @@ fi
 git fetch --all
 git checkout aleatorizador
 
+# Intenta rebase; si falla, fa un merge automàtic
+git pull --rebase origin aleatorizador || git pull origin aleatorizador
+
 echo "=== Entorn configurat. Ja pots fer git push origin aleatorizador ==="
