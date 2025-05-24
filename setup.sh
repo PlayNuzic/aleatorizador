@@ -1,20 +1,16 @@
-REPO_HTTPS="https://${GITHUB_TOKEN}@github.com/PlayNuzic/aleatorizador.git"
-
-# canvia (o crea) l’URL, no l’afegeix si ja hi és
-git remote set-url origin "$REPO_HTTPS"
-
-git checkout main
-echo "✅ Entorn preparat"#!/usr/bin/env bash
+#!/usr/bin/env bash
 set -eux
 
-# — 1) Config bàsica de git
+# 1) Config bàsica de git
 git config --global user.name  "PlayNuzic-Codex"
 git config --global user.email "codex@playnuzic.local"
 
-REPO_HTTPS="https://${GITHUB_TOKEN}@github.com/PlayNuzic/aleatorizador.git"
+# 2) Construeix l’URL HTTPS amb PAT a partir del remote existent
+REMOTE=$(git config --get remote.origin.url)          
+REMOTE_HTTPS=${REMOTE/git@github.com:/https://${GITHUB_TOKEN}@github.com/}
 
-# canvia (o crea) l’URL, no l’afegeix si ja hi és
-git remote set-url origin "$REPO_HTTPS"
+# 3) Actualitza (o crea) origin
+git remote set-url origin "$REMOTE_HTTPS"
 
-git checkout main
+git checkout main || true
 echo "✅ Entorn preparat"
