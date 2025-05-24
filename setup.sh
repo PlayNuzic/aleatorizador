@@ -42,6 +42,11 @@ if [ ! -d ".git" ]; then
   git clone "$REPO_SSH" .
 fi
 
+# ─ assegura remote origin ──────────────────────────────
+if ! git remote | grep -qx origin; then
+  git remote add origin "$REPO_SSH"    # $REPO_SSH ja conté git@github.com:PlayNuzic/aleatorizador.git
+fi
+
 ### 5) Situa’t a la branca correcta i porta l’últim
 git fetch --all
 git checkout "$BRANCH"
