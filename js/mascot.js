@@ -1,17 +1,15 @@
-/* global React, ReactDOM */
-(() => {
-  const { MascotOverlay, useMascot } = window;
-  if (!MascotOverlay || !useMascot) return;
+/* eslint-env browser */
+const { MascotOverlay, useMascot } = window;
 
-  function MascotRoot() {
-    const { message, visible, show } = useMascot();
-    // helper per mostrar missatges des de consola / altres scripts
-    window.triggerMascot = show;
-    return React.createElement(MascotOverlay, { message, visible });
-  }
+function MascotRoot() {
+  /* hook global */
+  const state = useMascot();      // { message, visible, show, hide, mute }
+  /* exposem perquè puguis cridar-ho a la consola */
+  window.triggerMascot = state.show;
+  return React.createElement(MascotOverlay, state);
+}
 
-  ReactDOM.render(
-    React.createElement(MascotRoot),
-    document.getElementById('mascot-root')
-  );
-})();
+ReactDOM.render(
+  React.createElement(MascotRoot),
+  document.getElementById('mascot-root'),
+);
