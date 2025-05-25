@@ -15,22 +15,6 @@ segons escales mare, rotacions i interval·lística modular.
 
 ---
 
-## 📂 Estructura de carpetes
-.
-├── css/                 # Estil global de l’app
-├── js/
-│   ├── app.js           # Lògica generador de melodies (sense frameworks)
-│   └── mascot.js        # Bootstrap React de la mascota
-├── src/
-│   ├── hooks/useMascot.js
-│   ├── components/MascotOverlay.js
-│   └── assets/mascot.json
-├── tests/               # Placeholder tests per Codex (Jest disabled)
-├── favicon.ico
-├── index.html
-└── setup.sh             # Script universal per a Codex
----
-
 ## 🚀 Ús ràpid
 
 1. **Obre `index.html`** amb Live Server, VS Code, `python -m http.server`, etc.
@@ -47,7 +31,7 @@ git clone https://github.com/PlayNuzic/aleatorizador.git
 cd aleatorizador
 # servidor estàtic (ex. node http-server, live-server, python, ...)
 
-## 🖥️ Entorn Codex
+## 🖥 ️ Entorn Codex
 
 L’script setup.sh configura:
 	•	Git via PAT (GITHUB_TOKEN)
@@ -57,6 +41,6 @@ L’script setup.sh configura:
 Per executar Codex:
 chmod +x setup.sh && ./setup.sh    # un cop clonat el repo
 
-## ℹ️ Llicència
+## ℹ ️ Llicència
 
 GPL-3.0
