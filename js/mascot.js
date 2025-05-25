@@ -1,5 +1,7 @@
-const MascotOverlay = window.MascotOverlay;
-const useMascot = window.useMascot;
+import '../src/components/MascotOverlay.jsx';
+import '../src/hooks/useMascot.js';
+
+const { MascotOverlay, useMascot } = window;
 
 function MascotRoot() {
   const { message, visible, show } = useMascot();
