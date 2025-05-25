@@ -1,6 +1,5 @@
-import '../src/components/MascotOverlay.jsx';
-import '../src/hooks/useMascot.js';
-
+const { createElement } = React;
+const { render } = ReactDOM;
 const { MascotOverlay, useMascot } = window;
 
 function MascotRoot() {
@@ -9,10 +8,10 @@ function MascotRoot() {
   // expose show function globally for demo
   window.triggerMascot = show;
 
-  return React.createElement(MascotOverlay, { message, visible });
+  return createElement(MascotOverlay, { message, visible });
 }
-
-ReactDOM.render(
-  React.createElement(MascotRoot),
+render(
+  createElement(MascotRoot),
   document.getElementById('mascot-root')
 );
+
