@@ -24,4 +24,3 @@ function useMascot() {
 }
 
 window.useMascot = useMascot;
->>>>>>> theirs
