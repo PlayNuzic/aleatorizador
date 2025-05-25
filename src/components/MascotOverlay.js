@@ -1,4 +1,3 @@
-const { useState, useEffect } = React;
 
 function SpeechBubble({ text }) {
   return (
