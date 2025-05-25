@@ -1,26 +1,32 @@
-const { useState, useEffect } = React;
+/* global React */
+(() => {
+  // Evitem duplicats si el fitxer ja s'ha carregat abans
+  if (window.useMascot) return;
 
-function useMascot() {
-  const [message, setMessage] = useState('');
-  const [visible, setVisible] = useState(false);
+  const { useState, useEffect } = React;
 
-  useEffect(() => {
-    const muted = localStorage.getItem('mascotMuted') === 'true';
-    if (!muted) {
+  function useMascot() {
+    const [message, setMessage] = useState('');
+    const [visible, setVisible] = useState(false);
+
+    // Missatge de benvinguda (si no està mutejat)
+    useEffect(() => {
+      if (localStorage.getItem('mascotMuted') !== 'true') {
+        setVisible(true);
+        setMessage('¡Bienvenido!');
+      }
+    }, []);
+
+    const show = msg => {
+      if (localStorage.getItem('mascotMuted') === 'true') return;
+      setMessage(msg);
       setVisible(true);
-      setMessage('Bienvenido!');
-    }
-  }, []);
+    };
 
-  const show = (msg, pos) => {
-    if (localStorage.getItem('mascotMuted') === 'true') return;
-    setMessage(msg);
-    setVisible(true);
-  };
+    const hide = () => setVisible(false);
 
-  const hide = () => setVisible(false);
+    return { message, visible, show, hide };
+  }
 
-  return { message, visible, show, hide };
-}
-
-window.useMascot = useMascot;
+  window.useMascot = useMascot;
+})();
