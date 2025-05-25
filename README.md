@@ -1,46 +1,74 @@
-# Generador Modular de Melodies 🎲🎵
+# Generador Modular de Melodías (aleatorizador)
 
-Aplicació web (HTML + CSS + JS pur) per generar melodies aleatòries
-segons escales mare, rotacions i interval·lística modular.
+![demo](./images/screenshot.png) <!-- opcional, si vols afegir una captura -->
 
-## Novetats 2025-05-25
+Aplicació web autosuficient que permet generar, editar i escoltar patrons
+melòdics de forma modular sobre qualsevol escala o mode.
+Es distribueix com a **site estàtic** (tot és HTML + CSS + JS a l’arrel del
+repo) i es publica automàticament a **GitHub Pages**:
 
-| 🔥   | Funcionalitat                                                                                       |
-|------|-----------------------------------------------------------------------------------------------------|
-| 🦜   | **Mascota React + Lottie** (component `MascotOverlay`) amb bombolla de text.                        |
-| 🎮   | Globals `triggerMascot(msg, autoHideSec)` i `hideMascot()` exposades per a ús extern (consola/API). |
-| 🚫   | La mascota respecta `localStorage.mascotMuted` i es pot “mutar” permanentment amb la `×`.            |
-| 🎨   | Lottie es carrega automàticament des de **`src/assets/mascot.json`**.                               |
-| 🗂️   | Estructura clara → `src/hooks`, `src/components`, `js/`, `css/`…                                    |
+> https://playnuzic.github.io/aleatorizador/
 
 ---
 
-## 🚀 Ús ràpid
+## Funcionalitats principals
 
-1. **Obre `index.html`** amb Live Server, VS Code, `python -m http.server`, etc.
-2. La mascota saluda (“¡Bienvenido!”) i desapareix en 4 s.
-3. Des de la consola Chrome/Firefox pots:
-   ```js
-   triggerMascot("Hola des de consola 👋", 6);  // mostra 6 s
-   hideMascot();                                // amaga immediatament
-   localStorage.removeItem('mascotMuted');      // torna a activar-la
+| bloc | resum |
+| ---- | ----- |
+| **Motor de generació** | genera files de 8 notes a partir de vistes Na/Nm/Nº, intervals modulars o de grau. |
+| **Editor in-place** | doble clic a una casella ➜ edició del valor; es recalculen notes posteriors. |
+| **Escales i modes** | Rotació lliure de qualsevol mare (*Crom*, *Diat*, *Arm Menor*, etc.). |
+| **Playback** | Synth bàsic amb *Web Audio*; botó ▶ per fila, BPM ajustable. |
+| **Presets ràpids** | Barra de 8 memòries (Alt + clic esborra, Shift + clic desa). |
+| **Mascota Lottie** | Mascota animada amb globus de text, que es pot cridar des del codi o silenciar (guarda estat a *localStorage*). |
 
-## 🔧 Desenvolupament
+---
 
+## 🐾 Mascota (Lottie)
+
+La mascota es defineix en:
+
+* `src/hooks/useMascot.js` – hook que gestiona estat, *mute*, temporitzador, etc.  [oai_citation:0‡useMascot.js](file-service://file-Hh3MvNeNSh2ctyF44wBR2r)  
+* `src/components/MascotOverlay.js` – overlay amb la imatge/animació i la bombolla de text.  [oai_citation:1‡MascotOverlay.js](file-service://file-2aUQzCVyaxYPR1UTzUUMXx)  
+* `js/mascot.js` – monta el React root, exporta la API global.  [oai_citation:2‡mascot.js](file-service://file-NmhQX1RBRB8VACYGESPVuP)  
+
+### API global
+
+Un cop carregada la pàgina disposes de:
+
+```js
+// mostra el missatge durant `secs` segons (per defecte 4 s)
+triggerMascot("Hola món 👋", 6);
+
+// amaga immediatament la mascota
+hideMascot();
+
+Si l’usuari prem ✖︎ o executa localStorage.setItem('mascotMuted','true')
+la mascota ja no apareixerà fins que es faci unmute esborrant la clau.
+
+Desenvolupament
+1. Clonar i instal·lar depenències opcionals
 git clone https://github.com/PlayNuzic/aleatorizador.git
 cd aleatorizador
-# servidor estàtic (ex. node http-server, live-server, python, ...)
+npm ci   # opcional – només si vols executar tests o linter
 
-## 🖥 ️ Entorn Codex
+2. Servidor local
+python3 -m http.server 8000
 
-L’script setup.sh configura:
-	•	Git via PAT (GITHUB_TOKEN)
-	•	Eines bàsiques (git, curl, jq, npm, corepack)
-	•	Instal·lació “offline” de jest, rome, live-server, etc. (sense xarxa després del setup)
+3. Tests
+npm test          # només conté un placeholder; Jest està al package.json
 
-Per executar Codex:
-chmod +x setup.sh && ./setup.sh    # un cop clonat el repo
+Entorn OpenAI Codex
 
-## ℹ ️ Llicència
+Es pot fer push directament des de l’entorn de Codex.
+	1.	A Settings → Environments crea un entorn i afegeix el secret GITHUB_TOKEN
+amb permisos repo.
+	2.	Utilitza el setup.sh del repo per preparar Git, Node i pinxar el token.
+	3.	Cada sessió de Codex quedarà llesta per a git add/commit/push.
 
-GPL-3.0
+Recorda que, un cop acaba el setup.sh, la sessió perd accés a internet;
+totes les dependències que necessitis s’han d’instal·lar dins del setup.
+
+Llicència
+
+GPL-3.0 – © PlayNuzic
