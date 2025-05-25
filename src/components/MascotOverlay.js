@@ -1,34 +1,70 @@
 // src/components/MascotOverlay.js
-const { useEffect } = React;
+(function (g) {
+  const { useEffect } = React;
 
-/**
- * Component presentacional (Lottie + bombolla)
- * props: { message, visible, hide }
- */
-function MascotOverlay({ message, visible, hide }) {
-  // carrega animació Lottie un cop
-  useEffect(() => {
-    if (!window.lottie) return;
-    window.lottie.loadAnimation({
-      container: document.getElementById('mascot-lottie'),
-      renderer: 'svg',
-      loop: true,
-      autoplay: true,
-      path: 'src/assets/mascot.json'
-    });
-  }, []);
+  function MascotOverlay({ message, visible, onClose, lottieSrc }) {
+    const style = {
+      position: 'fixed',
+      top: '1rem',
+      left: '1rem',
+      zIndex: 9999,
+      display: visible ? 'flex' : 'none',
+      alignItems: 'center',
+      gap: '.5rem',
+      background: '#EEE8D8',
+      color: '#43433B',
+      borderRadius: '8px',
+      padding: '.6rem 1rem',
+      boxShadow: '0 4px 12px rgba(0,0,0,.2)',
+      maxWidth: '240px',
+      fontFamily: 'Ubuntu, sans-serif'
+    };
 
-  if (!visible) return null;
+    // Carrega / re-carrega l’animació Lottie quan canvie l’element <svg>
+    useEffect(() => {
+      if (!lottieSrc || !visible) return;
+      const container = document.getElementById('mascot-lottie');
+      if (!container) return;
 
-  return (
-    <div id="mascot" style={{ position: 'fixed', top: 15, left: 15 }}>
-      <div id="mascot-lottie" style={{ width: 120, height: 120 }}></div>
-      <div className="bubble">
-        {message}
-        <button onClick={() => { hide(); localStorage.setItem('mascotMuted','true'); }}>×</button>
-      </div>
-    </div>
-  );
-}
+      // neteja qualsevol instància existent
+      container.innerHTML = '';
+      // eslint-disable-next-line no-undef
+      lottie.loadAnimation({
+        container,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: lottieSrc
+      });
+    }, [visible, lottieSrc]);
 
-window.MascotOverlay = MascotOverlay;
+    return React.createElement(
+      'div',
+      { style },
+      React.createElement('div', { id: 'mascot-lottie', style: { width: 64, height: 64 } }),
+      React.createElement('span', null, message),
+      React.createElement(
+        'button',
+        {
+          style: {
+            marginLeft: 'auto',
+            background: '#E76F68',
+            border: 'none',
+            color: '#fff',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            width: 24,
+            height: 24,
+            lineHeight: '24px',
+            textAlign: 'center'
+          },
+          onClick: onClose
+        },
+        '✕'
+      )
+    );
+  }
+
+  // exposa globalment
+  g.MascotOverlay = MascotOverlay;
+})(window);
