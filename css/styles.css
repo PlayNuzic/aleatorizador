@@ -29,4 +29,12 @@
       border:1px solid var(--yellow); padding:0.5rem; margin-top:1rem; align-self:flex-start;
       max-width:600px; }
     .row-op-cell { min-width:6rem; }
-    .row-op-cell select { width:100%; }
+.row-op-cell select { width:100%; }
+
+.speech-bubble {
+  background:white;
+  color:black;
+  padding:0.5rem 1rem;
+  border-radius:8px;
+  margin-left:0.5rem;
+}

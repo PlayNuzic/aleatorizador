@@ -1,7 +1,6 @@
-;(function (global) {
-  const { useState, useEffect } = React;
+const { useState, useEffect } = React;
 
-  function useMascot() {
+function useMascot() {
   const [message, setMessage] = useState('');
   const [visible, setVisible] = useState(false);
 
@@ -22,7 +21,7 @@
   const hide = () => setVisible(false);
 
   return { message, visible, show, hide };
-  }
+}
 
-  global.useMascot = useMascot;
-})(this);
+window.useMascot = useMascot;
+>>>>>>> theirs
