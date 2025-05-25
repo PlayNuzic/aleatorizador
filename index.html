@@ -1,29 +1,35 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Generador Modular de Melodías</title>
-  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
-  <link rel="icon" href="favicon.ico">
+
+  <!-- Tipografia i estils propis -->
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="favicon.ico" />
 </head>
+
 <body>
   <h1>Generador Modular de Melodías</h1>
 
+  <!-- toolbar + taula generador (ja existents) -->
   <div class="toolbar">
     <button id="btnRoll">Aleatorizar</button>
     <label>Escala <select id="scaleSel"></select></label>
     <button id="btnClear">Vaciar</button>
-    <label>Vista 
+    <label>Vista
       <select id="viewSel">
         <option>Na</option><option>Nm</option><option>Nº</option>
         <option>iSm</option><option>iSº</option><option>iAm</option><option>iAº</option>
       </select>
     </label>
-    <label>BPM <input type="number" id="bpmInp" value="90" min="20" max="300" style="width:4.5rem"></label>
+    <label>BPM <input id="bpmInp" type="number" min="20" max="300" value="90" style="width:4.5rem" /></label>
     <div class="slider-wrapper">
-      <label>Prob. octava <input type="range" id="octProb" min="0" max="0.5" step="0.05" value="0.15"></label>
+      <label>Prob. octava
+        <input id="octProb" type="range" min="0" max="0.5" step="0.05" value="0.15" />
+      </label>
       <span id="octProbVal">0.15</span>
     </div>
     <label>Modo/Rot. <select id="rotSel"></select></label>
@@ -34,21 +40,23 @@
   <div class="main-content">
     <table id="grid"></table>
     <div class="interval-legend-box">
-      En las vistas de Nota se puede introducir notas y registros. En las vistas de intervalos,
-      introduce un número para sumar/restar al intervalo; la casilla mostrará el resultado en 
-      pasos de Nm en intervalos modulares y en pasos de grado en intervalos de grado.
+      En las vistas de Nota se puede introducir notas y registros. En las vistas de intervalos…
     </div>
   </div>
+
+  <!-- punt on es muntarà la mascota -->
   <div id="mascot-root"></div>
 
+  <!-- JS principal de l’app -->
+  <script src="js/app.js"></script>
+
+  <!-- React en CDN -->
   <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
 
-  <script src="https://unpkg.com/lottie-web@5.10.2/build/player/lottie.min.js"></script>
-
+  <!-- Mascota: hook, component i inicialitzador (ordenats) -->
   <script src="src/hooks/useMascot.js"></script>
   <script src="src/components/MascotOverlay.js"></script>
-
   <script src="js/mascot.js"></script>
 </body>
 </html>
