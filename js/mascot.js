@@ -1,6 +1,6 @@
 import React from 'https://unpkg.com/react@17/umd/react.production.min.js?module';
 import ReactDOM from 'https://unpkg.com/react-dom@17/umd/react-dom.production.min.js?module';
-import MascotOverlay from '../src/components/MascotOverlay.jsx';
+import MascotOverlay from '../src/components/MascotOverlay.js';
 import { useMascot } from '../src/hooks/useMascot.js';
 
 function MascotRoot() {
