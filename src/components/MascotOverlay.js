@@ -1,4 +1,5 @@
-const { useState, useEffect } = React;
+;(function (global) {
+  const { useState, useEffect } = React;
 
 function SpeechBubble({ text }) {
   return (
@@ -15,7 +16,8 @@ function SpeechBubble({ text }) {
   );
 }
 
-function MascotOverlay({ message, visible, position }) {
+  function MascotOverlay({ message, visible, position }) {
+>>>>>>> theirs
   const [muted, setMuted] = useState(() => localStorage.getItem('mascotMuted') === 'true');
 
   useEffect(() => {
@@ -42,6 +44,7 @@ function MascotOverlay({ message, visible, position }) {
       }, '×')
     )
   );
-}
+  }
 
-window.MascotOverlay = MascotOverlay;
+  global.MascotOverlay = MascotOverlay;
+})(this);

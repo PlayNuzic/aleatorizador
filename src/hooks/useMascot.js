@@ -1,7 +1,7 @@
-// React is loaded globally via CDN
-const { useState, useEffect } = React;
+;(function (global) {
+  const { useState, useEffect } = React;
 
-function useMascot() {
+  function useMascot() {
   const [message, setMessage] = useState('');
   const [visible, setVisible] = useState(false);
 
@@ -22,7 +22,7 @@ function useMascot() {
   const hide = () => setVisible(false);
 
   return { message, visible, show, hide };
-}
+  }
 
-// expose globally
-window.useMascot = useMascot;
+  global.useMascot = useMascot;
+})(this);
