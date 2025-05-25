@@ -1,7 +1,5 @@
-import MascotOverlay from '../src/components/MascotOverlay.js';
-import { useMascot } from '../src/hooks/useMascot.js';
-
-const { useState } = React;
+const MascotOverlay = window.MascotOverlay;
+const useMascot = window.useMascot;
 
 function MascotRoot() {
   const { message, visible, show } = useMascot();

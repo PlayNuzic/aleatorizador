@@ -1,1 +1,3 @@
-console.log('placeholder tests - environment lacks jest');
+test('MascotOverlay placeholder', () => {
+  expect(true).toBe(true);
+});

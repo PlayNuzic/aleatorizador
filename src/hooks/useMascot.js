@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'https://unpkg.com/react@17/umd/react.production.min.js';
+const { useState, useEffect } = React;
 
-export function useMascot() {
+function useMascot() {
   const [message, setMessage] = useState('');
   const [visible, setVisible] = useState(false);
 
@@ -22,3 +22,5 @@ export function useMascot() {
 
   return { message, visible, show, hide };
 }
+
+window.useMascot = useMascot;
