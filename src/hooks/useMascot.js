@@ -1,46 +1,30 @@
-/* eslint-env browser */
-const { useState, useEffect, useRef } = React;
+/* src/hooks/useMascot.js */
+// React globals
+const { useState, useEffect } = React;
 
-/**
- * Hook global per al sistema de mascota
- *
- *  - show(msg, secs = 4): mostra el missatge i desapareix automàticament.
- *  - hide(): amaga manualment.
- *  - mute(): no tornar a mostrar fins que l’usuari esborr(i) la clau “mascotMuted”.
- */
-export function useMascot() {
+function useMascot() {
   const [message, setMessage] = useState('');
   const [visible, setVisible] = useState(false);
-  const timerRef = useRef(null);
 
-  /* Cada vegada que es recarrega la pàgina, tornem a saludar */
+  // mostra la benvinguda només si l’usuari no ha silenciat
   useEffect(() => {
-    const muted = localStorage.getItem('mascotMuted') === 'true';
-    if (!muted) show('¡Bienvenido!');
-    return () => clearTimeout(timerRef.current);
+    if (localStorage.getItem('mascotMuted') === 'true') return;
+    setMessage('¡Bienvenido!');
+    setVisible(true);
   }, []);
 
-  function show(msg, secs = 4) {
-    /** Evitem mostrar si està mutejat */
+  const show  = (msg, seconds = 4) => {
     if (localStorage.getItem('mascotMuted') === 'true') return;
     setMessage(msg);
     setVisible(true);
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setVisible(false), secs * 1000);
-  }
+    if (seconds) setTimeout(() => setVisible(false), seconds * 1000);
+  };
+  const hide  = () => setVisible(false);
+  const mute  = () => { localStorage.setItem('mascotMuted', 'true'); hide(); };
+  const unmute = () => localStorage.removeItem('mascotMuted');
 
-  function hide() {
-    clearTimeout(timerRef.current);
-    setVisible(false);
-  }
-
-  function mute() {
-    localStorage.setItem('mascotMuted', 'true');
-    hide();
-  }
-
-  return { message, visible, show, hide, mute };
+  return { message, visible, show, hide, mute, unmute };
 }
 
-/* exposem al window perquè mascot.js l’importi sense mòduls */
+// exposem globalment per als altres scripts
 window.useMascot = useMascot;

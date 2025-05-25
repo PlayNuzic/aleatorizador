@@ -1,15 +1,13 @@
-/* eslint-env browser */
+/* js/mascot.js */
 const { MascotOverlay, useMascot } = window;
 
 function MascotRoot() {
-  /* hook global */
-  const state = useMascot();      // { message, visible, show, hide, mute }
-  /* exposem perquè puguis cridar-ho a la consola */
-  window.triggerMascot = state.show;
-  return React.createElement(MascotOverlay, state);
+  const api = useMascot();          // { message, visible, show, hide, mute }
+  window.triggerMascot = api.show;  // expose for console / other code
+  return React.createElement(MascotOverlay, api);
 }
 
 ReactDOM.render(
   React.createElement(MascotRoot),
-  document.getElementById('mascot-root'),
+  document.getElementById('mascot-root')
 );
