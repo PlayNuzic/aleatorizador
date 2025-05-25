@@ -1,7 +1,7 @@
-// React is provided globally via CDN <script> tags
+// React is loaded globally via CDN
 const { useState, useEffect } = React;
 
-export function useMascot() {
+function useMascot() {
   const [message, setMessage] = useState('');
   const [visible, setVisible] = useState(false);
 
@@ -24,5 +24,5 @@ export function useMascot() {
   return { message, visible, show, hide };
 }
 
-// expose hook on the window for non-module usage
+// expose globally
 window.useMascot = useMascot;

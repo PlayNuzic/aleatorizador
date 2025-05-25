@@ -15,9 +15,7 @@ A new React-based mascot provides tips on key actions. The overlay can be muted 
 - Call `triggerMascot('mensaje')` from anywhere to display a custom message.
 - Click the close button on the bubble to mute it permanently.
 
-Run tests with:
+### Tests
+- Execute `node tests/mascot.test.js` to run placeholder tests.
 
-```bash
-npm test
-```
-
+Unit tests are placeholders because the environment lacks `jest`.

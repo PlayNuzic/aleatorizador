@@ -4,7 +4,7 @@
   "description": "Abans de fer servir Codex per generar codi o fer `git push`, cal executar:",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node tests/mascot.test.js"
   },
   "repository": {
     "type": "git",

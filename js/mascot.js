@@ -1,6 +1,6 @@
-const { createElement } = React;
-const { render } = ReactDOM;
-const { MascotOverlay, useMascot } = window;
+// React and ReactDOM are loaded globally via CDN
+const MascotOverlay = window.MascotOverlay;
+const useMascot = window.useMascot;
 
 function MascotRoot() {
   const { message, visible, show } = useMascot();
@@ -8,10 +8,10 @@ function MascotRoot() {
   // expose show function globally for demo
   window.triggerMascot = show;
 
-  return createElement(MascotOverlay, { message, visible });
+  return React.createElement(MascotOverlay, { message, visible });
 }
-render(
-  createElement(MascotRoot),
+
+ReactDOM.render(
+  React.createElement(MascotRoot),
   document.getElementById('mascot-root')
 );
-
