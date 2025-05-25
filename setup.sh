@@ -24,11 +24,8 @@ fi
 # 3. Habilita yarn/pnpm sense baixar-los
 corepack enable
 
-# 4. (Opcional) instal·la les deps declarades al projecte --------------------
-if [[ -f package.json ]]; then
-  # --ignore-scripts: evita post-install que demanin xarxa o rodegins
-  # --fund=false     : evita la sortida de missatges “npm fund”
-  npm ci --ignore-scripts --fund=false
-fi
+
+# 4. Instal·la les dependències de Node (inclòs Jest) abans que es talli la xarxa
+npm install --ignore-scripts --no-audit --progress=false
 
 echo "✅ Entorn preparat. Pots fer git add / commit / push (HTTPS amb PAT)."
