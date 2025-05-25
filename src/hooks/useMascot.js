@@ -1,30 +1,31 @@
-/* src/hooks/useMascot.js */
-// React globals
+// src/hooks/useMascot.js
 const { useState, useEffect } = React;
 
+/**
+ * Hook que gestiona missatge, visibilitat i “mute”
+ */
 function useMascot() {
   const [message, setMessage] = useState('');
   const [visible, setVisible] = useState(false);
 
-  // mostra la benvinguda només si l’usuari no ha silenciat
-  useEffect(() => {
-    if (localStorage.getItem('mascotMuted') === 'true') return;
-    setMessage('¡Bienvenido!');
-    setVisible(true);
-  }, []);
-
-  const show  = (msg, seconds = 4) => {
+  /** mostra el missatge (i el tanca opcionalment en X segons) */
+  const show = (msg = '👋 Hola!', autoHideSec = 4) => {
     if (localStorage.getItem('mascotMuted') === 'true') return;
     setMessage(msg);
     setVisible(true);
-    if (seconds) setTimeout(() => setVisible(false), seconds * 1000);
+    if (autoHideSec > 0) setTimeout(() => setVisible(false), autoHideSec * 1000);
   };
-  const hide  = () => setVisible(false);
-  const mute  = () => { localStorage.setItem('mascotMuted', 'true'); hide(); };
-  const unmute = () => localStorage.removeItem('mascotMuted');
 
-  return { message, visible, show, hide, mute, unmute };
+  /** amaga-lo immediatament */
+  const hide = () => setVisible(false);
+
+  // missatge inicial
+  useEffect(() => {
+    if (localStorage.getItem('mascotMuted') !== 'true') show('¡Bienvenido!', 4);
+  }, []);
+
+  return { message, visible, show, hide };
 }
 
-// exposem globalment per als altres scripts
+// exposem al global perquè altres scripts el puguin agafar
 window.useMascot = useMascot;

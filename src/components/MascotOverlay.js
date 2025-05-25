@@ -1,25 +1,33 @@
-/* src/components/MascotOverlay.js */
-const { useState, useEffect } = React;
+// src/components/MascotOverlay.js
+const { useEffect } = React;
 
-function MascotOverlay({ message, visible, hide, mute }) {
+/**
+ * Component presentacional (Lottie + bombolla)
+ * props: { message, visible, hide }
+ */
+function MascotOverlay({ message, visible, hide }) {
+  // carrega animació Lottie un cop
+  useEffect(() => {
+    if (!window.lottie) return;
+    window.lottie.loadAnimation({
+      container: document.getElementById('mascot-lottie'),
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      path: 'src/assets/mascot.json'
+    });
+  }, []);
+
   if (!visible) return null;
 
   return (
-    React.createElement(
-      'div',
-      { className: 'mascot-overlay' },
-      React.createElement('span', null, message),
-      React.createElement(
-        'button',
-        { className: 'mascot-close', onClick: hide, title: 'Cerrar' },
-        '✕'
-      ),
-      React.createElement(
-        'button',
-        { className: 'mascot-mute', onClick: mute, title: 'No volver a mostrar' },
-        '🔇'
-      )
-    )
+    <div id="mascot" style={{ position: 'fixed', top: 15, left: 15 }}>
+      <div id="mascot-lottie" style={{ width: 120, height: 120 }}></div>
+      <div className="bubble">
+        {message}
+        <button onClick={() => { hide(); localStorage.setItem('mascotMuted','true'); }}>×</button>
+      </div>
+    </div>
   );
 }
 
