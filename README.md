@@ -20,32 +20,8 @@ repo) i es publica automàticament a **GitHub Pages**:
 | **Escales i modes** | Rotació lliure de qualsevol mare (*Crom*, *Diat*, *Arm Menor*, etc.). |
 | **Playback** | Synth bàsic amb *Web Audio*; botó ▶ per fila, BPM ajustable. |
 | **Presets ràpids** | Barra de 8 memòries (Alt + clic esborra, Shift + clic desa). |
-| **Mascota Lottie** | Mascota animada amb globus de text, que es pot cridar des del codi o silenciar (guarda estat a *localStorage*). |
 
 ---
-
-## 🐾 Mascota (Lottie)
-
-La mascota es defineix en:
-
-* `src/hooks/useMascot.js` – hook que gestiona estat, *mute*, temporitzador, etc.  [oai_citation:0‡useMascot.js](file-service://file-Hh3MvNeNSh2ctyF44wBR2r)  
-* `src/components/MascotOverlay.js` – overlay amb la imatge/animació i la bombolla de text.  [oai_citation:1‡MascotOverlay.js](file-service://file-2aUQzCVyaxYPR1UTzUUMXx)  
-* `js/mascot.js` – monta el React root, exporta la API global.  [oai_citation:2‡mascot.js](file-service://file-NmhQX1RBRB8VACYGESPVuP)  
-
-### API global
-
-Un cop carregada la pàgina disposes de:
-
-```js
-// mostra el missatge durant `secs` segons (per defecte 4 s)
-triggerMascot("Hola món 👋", 6);
-
-// amaga immediatament la mascota
-hideMascot();
-
-Si l’usuari prem ✖︎ o executa localStorage.setItem('mascotMuted','true')
-la mascota ja no apareixerà fins que es faci unmute esborrant la clau.
-
 Desenvolupament
 1. Clonar i instal·lar depenències opcionals
 git clone https://github.com/PlayNuzic/aleatorizador.git
