@@ -24,7 +24,14 @@ function scaleSemis(id){
 
 // STATE
 const ROWS=8, COLS=8;
-let state={bpm:90, view:'Na', octProb:0.15, scale:{id:'CROM', rot:0, root:0}, naRows:[]};
+let state={
+  bpm:90,
+  view:'Na',
+  octProb:0.15,
+  scale:{id:'CROM', rot:0, root:0},
+  params:{iR:null, caDif:null, rango:24, duplicates:true, start:null},
+  naRows:[]
+};
 let presets=Array(8).fill(null), currentPreset=-1;
 
 // DOM REFERENCES
@@ -39,10 +46,19 @@ const octProb=document.getElementById('octProb');
 const octProbVal=document.getElementById('octProbVal');
 const grid=document.getElementById('grid');
 const presetBar=document.getElementById('presetBar');
+const irSel=document.getElementById('irSel');
+const cadifInp=document.getElementById('cadifInp');
+const rangoInp=document.getElementById('rangoInp');
+const dupChk=document.getElementById('dupChk');
+const startSel=document.getElementById('startSel');
 
 // INITIALIZE SELECTORS
 scaleIDs.forEach(id=>scaleSel.add(new Option(`${id} – ${motherScalesData[id].name}`, id)));
 [...Array(12).keys()].forEach(i=>rootSel.add(new Option(i, i)));
+[...Array(12).keys()].forEach(i=>startSel.add(new Option(i, i)));
+for(let i=-24;i<=24;i++) irSel.add(new Option(i===0?'+0':(i>0?`+${i}`:`${i}`), i));
+irSel.insertBefore(new Option('Aleatorio',''), irSel.firstChild);
+startSel.insertBefore(new Option('Aleatorio',''), startSel.firstChild);
 function refreshRot(){
   rotSel.innerHTML='';
   motherScalesData[state.scale.id].rotNames.forEach((n,i)=>rotSel.add(new Option(`${i} – ${n}`, i)));
@@ -69,6 +85,32 @@ function genNmRow(){ return Array.from({length:COLS}, ()=>{ let n=randInt(0,11),
 function genScaleDegreeRow(){ const sems=scaleSemis(state.scale.id); return Array.from({length:COLS}, ()=>{ let deg=randInt(0,sems.length-1), sem=(sems[(deg+state.scale.rot)%sems.length]+state.scale.root)%12, d=Math.random()<state.octProb?(Math.random()<0.5?12:-12):0; return clamp(4*12+sem+d,0,96); }); }
 function genISmRow(){ let v=randInt(0,96); return Array.from({length:COLS},(_,i)=>{ if(i===0) return v; let iv=randInt(-6,6); if(Math.random()<state.octProb) iv+=(Math.random()<0.5?12:-12); v=clamp(v+iv,0,96); return v; }); }
 function genIStepRow(){ const sems=scaleSemis(state.scale.id); let idx=randInt(0,sems.length-1), oct=4, sem=(sems[(idx+state.scale.rot)%sems.length]+state.scale.root)%12, v=clamp(oct*12+sem,0,96); return Array.from({length:COLS},(_,i)=>{ if(i===0) return v; let diff=randInt(-Math.floor(sems.length/2),Math.floor(sems.length/2)); if(Math.random()<state.octProb) diff+=(Math.random()<0.5?-sems.length:sems.length); idx=(idx+diff+sems.length)%sems.length; sem=(sems[(idx+state.scale.rot)%sems.length]+state.scale.root)%12; oct+=Math.sign(diff); v=clamp(oct*12+sem,0,96); return v; }); }
+
+function applyGlobalParams(row){
+  const p=state.params;
+  if(p.start!=null) row[0]=clamp(4*12+wrapSym(p.start,12),0,96);
+  const base=row[0];
+  const range=p.rango??24;
+  for(let i=0;i<row.length;i++) row[i]=clamp(row[i], base-range, base+range);
+  if(p.iR!=null) row[row.length-1]=clamp(base+p.iR, base-range, base+range);
+  if(!p.duplicates){
+    const used=new Set();
+    for(let i=0;i<row.length;i++){
+      let n=row[i], tries=0;
+      while(used.has(n)&&tries<50){
+        n=clamp(base+randInt(-range,range),0,96); tries++; }
+      row[i]=n; used.add(n);
+    }
+  }
+  if(p.caDif!=null){
+    const used=new Set();
+    for(let i=0;i<row.length;i++){
+      if(used.size<p.caDif){ used.add(row[i]); }
+      else if(!used.has(row[i])){ const arr=Array.from(used); row[i]=arr[randInt(0,arr.length-1)]; }
+    }
+  }
+  return row;
+}
 
 // PARSE CELL INPUT
 function parseCellInput(view,input,oldNa){ const parts=input.split(/r/i).map(s=>s.trim()); const value=parseInt(parts[0],10); const octave=parts[1]?parseInt(parts[1],10):Math.floor(oldNa/12); if(isNaN(value)) return oldNa; let newNa; switch(view){ case 'Na': newNa=clamp(value,0,96); break; case 'Nm': newNa=clamp(octave*12+wrapSym(value,12),0,96); break; case 'Nº':{ const sems=scaleSemis(state.scale.id), len=sems.length; const sem=(sems[(value+state.scale.rot+len)%len]+state.scale.root)%12; newNa=clamp(octave*12+sem,0,96); break; } case 'iSm': case 'iAm': newNa=clamp(oldNa+value,0,96); break; case 'iSº': case 'iAº':{ const info=absToDegInfo(oldNa), len=scaleSemis(state.scale.id).length; const newDeg=info.deg+value; const sem2=(scaleSemis(state.scale.id)[(newDeg+state.scale.rot+len)%len]+state.scale.root)%12; newNa=clamp(octave*12+sem2,0,96); break; } default: return oldNa;} return newNa; }
@@ -200,7 +242,24 @@ let audioCtx=null; const playingRow={idx:null,nodes:[]}; function ensureCtx(){ i
 function buildPresetBar(){ presetBar.innerHTML=''; presets.forEach((p,i)=>{ const b=document.createElement('button'); b.textContent=i+1; b.className=p?'filled':'empty'; if(i===currentPreset)b.classList.add('selected'); b.onclick=e=>{ if(e.altKey){ presets[i]=null; currentPreset=-1; buildPresetBar(); return;} if(e.shiftKey){ presets[i]=JSON.parse(JSON.stringify(state)); currentPreset=i; buildPresetBar(); return;} if(presets[i]){ state=JSON.parse(JSON.stringify(presets[i])); applyState();}}; presetBar.appendChild(b);});}
 
 // MAIN GENERATE
-function genRows(){ state.naRows=[]; for(let r=0;r<ROWS;r++){ let row; switch(state.view){ case 'Na': row=genNaRow(); break; case 'Nm': row=genNmRow(); break; case 'Nº': row=genScaleDegreeRow(); break; case 'iSm': case 'iAm': row=genISmRow(); break; case 'iSº': case 'iAº': row=genIStepRow(); break;} state.naRows.push(row);} renderGrid(); stopCurrent();}
+function genRows(){
+  state.naRows=[];
+  for(let r=0;r<ROWS;r++){
+    let row;
+    switch(state.view){
+      case 'Na': row=genNaRow(); break;
+      case 'Nm': row=genNmRow(); break;
+      case 'Nº': row=genScaleDegreeRow(); break;
+      case 'iSm':
+      case 'iAm': row=genISmRow(); break;
+      case 'iSº':
+      case 'iAº': row=genIStepRow(); break;
+    }
+    state.naRows.push(applyGlobalParams(row));
+  }
+  renderGrid();
+  stopCurrent();
+}
 
 // EVENTS
 btnRoll.onclick=()=>{ genRows(); currentPreset=-1; buildPresetBar();};
@@ -210,9 +269,30 @@ octProb.oninput=e=>{ state.octProb=parseFloat(octProb.value); octProbVal.textCon
 scaleSel.onchange=e=>{ state.scale.id=e.target.value; refreshRot(); renderGrid();};
 rotSel.onchange=e=>{ state.scale.rot=+rotSel.value; renderGrid();};
 rootSel.onchange=e=>{ state.scale.root=+rootSel.value; renderGrid();};
+irSel.onchange=e=>{ state.params.iR=irSel.value===''?null:+irSel.value; };
+cadifInp.onchange=e=>{ const v=cadifInp.value; state.params.caDif=v?+v:null; };
+rangoInp.onchange=e=>{ state.params.rango=+rangoInp.value; };
+dupChk.onchange=e=>{ state.params.duplicates=dupChk.checked; };
+startSel.onchange=e=>{ state.params.start=startSel.value===''?null:+startSel.value; };
 btnClear.onclick=e=>{ if(e.ctrlKey){ state.naRows=Array.from({length:ROWS},()=>Array(COLS).fill(null)); renderGrid(); return;} state.naRows.forEach(r=>r.fill(null)); renderGrid();};
 
 // INIT
 (function(){ state.naRows=Array.from({length:ROWS},()=>Array(COLS).fill(null)); applyState(); })();
 
-function applyState(){ scaleSel.value=state.scale.id; refreshRot(); rotSel.value=state.scale.rot; rootSel.value=state.scale.root; viewSel.value=state.view; octProb.value=state.octProb; octProbVal.textContent=state.octProb.toFixed(2); bpmInp.value=state.bpm; renderGrid(); buildPresetBar();}
+function applyState(){
+  scaleSel.value=state.scale.id;
+  refreshRot();
+  rotSel.value=state.scale.rot;
+  rootSel.value=state.scale.root;
+  viewSel.value=state.view;
+  octProb.value=state.octProb;
+  octProbVal.textContent=state.octProb.toFixed(2);
+  bpmInp.value=state.bpm;
+  irSel.value=state.params.iR==null?'' : state.params.iR;
+  cadifInp.value=state.params.caDif==null?'' : state.params.caDif;
+  rangoInp.value=state.params.rango;
+  dupChk.checked=state.params.duplicates;
+  startSel.value=state.params.start==null?'' : state.params.start;
+  renderGrid();
+  buildPresetBar();
+}

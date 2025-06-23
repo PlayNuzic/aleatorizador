@@ -31,6 +31,12 @@
     .row-op-cell { min-width:6rem; }
 .row-op-cell select { width:100%; }
 
+.global-params {
+  display:flex;
+  flex-wrap:wrap;
+  gap:.5rem;
+}
+
 .speech-bubble {
   background:white;
   color:black;
