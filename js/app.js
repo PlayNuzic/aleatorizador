@@ -269,11 +269,11 @@ octProb.oninput=e=>{ state.octProb=parseFloat(octProb.value); octProbVal.textCon
 scaleSel.onchange=e=>{ state.scale.id=e.target.value; refreshRot(); renderGrid();};
 rotSel.onchange=e=>{ state.scale.rot=+rotSel.value; renderGrid();};
 rootSel.onchange=e=>{ state.scale.root=+rootSel.value; renderGrid();};
-irSel.onchange=e=>{ state.params.iR=irSel.value===''?null:+irSel.value; };
-cadifInp.onchange=e=>{ const v=cadifInp.value; state.params.caDif=v?+v:null; };
-rangoInp.onchange=e=>{ state.params.rango=+rangoInp.value; };
-dupChk.onchange=e=>{ state.params.duplicates=dupChk.checked; };
-startSel.onchange=e=>{ state.params.start=startSel.value===''?null:+startSel.value; };
+irSel.onchange=e=>{ state.params.iR=irSel.value===''?null:+irSel.value; genRows(); };
+cadifInp.onchange=e=>{ const v=cadifInp.value; state.params.caDif=v?+v:null; genRows(); };
+rangoInp.onchange=e=>{ state.params.rango=+rangoInp.value; genRows(); };
+dupChk.onchange=e=>{ state.params.duplicates=dupChk.checked; genRows(); };
+startSel.onchange=e=>{ state.params.start=startSel.value===''?null:+startSel.value; genRows(); };
 btnClear.onclick=e=>{ if(e.ctrlKey){ state.naRows=Array.from({length:ROWS},()=>Array(COLS).fill(null)); renderGrid(); return;} state.naRows.forEach(r=>r.fill(null)); renderGrid();};
 
 // INIT
