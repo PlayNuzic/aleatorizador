@@ -74,7 +74,124 @@ function genIStepRow(){ const sems=scaleSemis(state.scale.id); let idx=randInt(0
 function parseCellInput(view,input,oldNa){ const parts=input.split(/r/i).map(s=>s.trim()); const value=parseInt(parts[0],10); const octave=parts[1]?parseInt(parts[1],10):Math.floor(oldNa/12); if(isNaN(value)) return oldNa; let newNa; switch(view){ case 'Na': newNa=clamp(value,0,96); break; case 'Nm': newNa=clamp(octave*12+wrapSym(value,12),0,96); break; case 'Nº':{ const sems=scaleSemis(state.scale.id), len=sems.length; const sem=(sems[(value+state.scale.rot+len)%len]+state.scale.root)%12; newNa=clamp(octave*12+sem,0,96); break; } case 'iSm': case 'iAm': newNa=clamp(oldNa+value,0,96); break; case 'iSº': case 'iAº':{ const info=absToDegInfo(oldNa), len=scaleSemis(state.scale.id).length; const newDeg=info.deg+value; const sem2=(scaleSemis(state.scale.id)[(newDeg+state.scale.rot+len)%len]+state.scale.root)%12; newNa=clamp(octave*12+sem2,0,96); break; } default: return oldNa;} return newNa; }
 
 // RENDER GRID
-function renderGrid(){ grid.innerHTML=''; const thead=document.createElement('thead'), htr=document.createElement('tr'); htr.appendChild(document.createElement('th')); for(let c=1;c<=COLS;c++){ const th=document.createElement('th'); th.textContent=c; htr.appendChild(th);} thead.appendChild(htr); grid.appendChild(thead); const tb=document.createElement('tbody'); state.naRows.forEach((row,r)=>{ const tr=document.createElement('tr'); const td0=document.createElement('td'), btn=document.createElement('button'); btn.textContent=playingRow.idx===r?'⏹':'▶'; btn.style.width='2.2rem'; btn.onclick=()=>{ playRow(r); renderGrid(); }; td0.appendChild(btn); tr.appendChild(td0); row.forEach((n,c)=>{ const td=document.createElement('td'); let txt=''; switch(state.view){ case 'Na': txt=n!=null?n:''; break; case 'Nm': txt=n!=null?`${((n%12)+12)%12}r${Math.floor(n/12)}`:''; break; case 'Nº': if(n!=null){ const di=absToDegInfo(n), oct=Math.floor(n/12); const degStr=di.off===0?`${di.deg}`:di.off>0?`${di.deg}+${di.off}`:`${di.deg}-${Math.abs(di.off)}`; txt=`${degStr}r${oct}`;} break; case 'iSm':case 'iAm': txt=c>0?row[c]-row[c-1]:''; break; case 'iSº':case 'iAº': if(c>0){ const prev=row[c-1], pi=absToDegInfo(prev), ci=absToDegInfo(n), offDiff=wrapSym(ci.off-pi.off,12), len=scaleSemis(state.scale.id).length, degDiff=wrapSym(ci.deg-pi.deg,len), octDiff=Math.floor(n/12)-Math.floor(prev/12), base=octDiff*len+degDiff; txt=offDiff===0?`${base}`:offDiff>0?`${base}${'+'.repeat(offDiff)}`:`${base}${'-'.repeat(-offDiff)}`;} break;} td.textContent=txt; td.contentEditable=true; td.onfocus=()=>{ td.dataset.oldNa=row[c]; td.dataset.rowSnapshot=JSON.stringify(row);} ; td.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); td.blur();}}; td.onblur=()=>{ const v=td.textContent.trim(), oldNa=parseFloat(td.dataset.oldNa); if(v===''||v===String(oldNa)) return; const newNa=parseCellInput(state.view,v,oldNa); if(newNa===oldNa) return; if(['iSm','iAm','iSº','iAº'].includes(state.view)){ const snap=JSON.parse(td.dataset.rowSnapshot), newRow=[...snap]; newRow[c]=newNa; for(let k=c+1;k<newRow.length;k++){ const origDiff=snap[k]-snap[k-1]; newRow[k]=clamp(newRow[k-1]+origDiff,0,96);} state.naRows[r]=newRow;} else state.naRows[r][c]=newNa; renderGrid();}; tr.appendChild(td);}); const tdOp=document.createElement('td'); tdOp.classList.add('row-op-cell'); const opSelect=document.createElement('select'); ['0','1','-1','2','-2','3','-3','4','-4'].forEach(val=>{ const o=document.createElement('option'); o.value=val; o.textContent=val==='0'?'R':(parseInt(val)>0?`+${val}`:val); opSelect.appendChild(o);}); opSelect.onchange=()=>{ const delta=parseInt(opSelect.value,10)*12; state.naRows[r]=state.naRows[r].map(x=>x!=null?clamp(x+delta,0,96):null); renderGrid();}; tdOp.appendChild(opSelect); tr.appendChild(tdOp); tb.appendChild(tr);} ); grid.appendChild(tb);} 
+function renderGrid(){
+  grid.innerHTML='';
+  const thead=document.createElement('thead');
+  const htr=document.createElement('tr');
+  htr.appendChild(document.createElement('th'));
+  for(let c=1;c<=COLS;c++){
+    const th=document.createElement('th');
+    th.textContent=c;
+    htr.appendChild(th);
+  }
+  thead.appendChild(htr);
+  grid.appendChild(thead);
+  const tb=document.createElement('tbody');
+  state.naRows.forEach((row,r)=>{
+    const tr=document.createElement('tr');
+    const td0=document.createElement('td');
+    const btn=document.createElement('button');
+    btn.textContent=playingRow.idx===r?'⏹':'▶';
+    btn.style.width='2.2rem';
+    btn.onclick=()=>{ playRow(r); renderGrid(); };
+    td0.appendChild(btn);
+    tr.appendChild(td0);
+    row.forEach((n,c)=>{
+      const td=document.createElement('td');
+      let txt='';
+      switch(state.view){
+        case 'Na':
+          txt=n!=null?n:'';
+          break;
+        case 'Nm':
+          txt=n!=null?`${((n%12)+12)%12}r${Math.floor(n/12)}`:'';
+          break;
+        case 'Nº':
+          if(n!=null){
+            const di=absToDegInfo(n), oct=Math.floor(n/12);
+            const degStr=di.off===0?`${di.deg}`:di.off>0?`${di.deg}+${di.off}`:`${di.deg}-${Math.abs(di.off)}`;
+            txt=`${degStr}r${oct}`;
+          }
+          break;
+        case 'iSm':
+        case 'iAm':
+          if(c===0){
+            txt=n!=null?`${((n%12)+12)%12}r${Math.floor(n/12)}`:'';
+          }else{
+            txt=row[c]-row[c-1];
+          }
+          break;
+        case 'iSº':
+        case 'iAº':
+          if(c===0){
+            if(n!=null){
+              const di=absToDegInfo(n), oct=Math.floor(n/12);
+              const degStr=di.off===0?`${di.deg}`:di.off>0?`${di.deg}+${di.off}`:`${di.deg}-${Math.abs(di.off)}`;
+              txt=`${degStr}r${oct}`;
+            }
+          }else{
+            const prev=row[c-1], pi=absToDegInfo(prev), ci=absToDegInfo(n);
+            const offDiff=wrapSym(ci.off-pi.off,12);
+            const len=scaleSemis(state.scale.id).length;
+            const degDiff=wrapSym(ci.deg-pi.deg,len);
+            const octDiff=Math.floor(n/12)-Math.floor(prev/12);
+            const base=octDiff*len+degDiff;
+            txt=offDiff===0?`${base}`:offDiff>0?`${base}${'+'.repeat(offDiff)}`:`${base}${'-'.repeat(-offDiff)}`;
+          }
+          break;
+      }
+      td.textContent=txt;
+      td.contentEditable=true;
+      td.onfocus=()=>{
+        td.dataset.oldNa=row[c];
+        td.dataset.rowSnapshot=JSON.stringify(row);
+      };
+      td.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); td.blur(); }};
+      td.onblur=()=>{
+        const v=td.textContent.trim();
+        const oldNa=parseFloat(td.dataset.oldNa);
+        if(v===''||v===String(oldNa)) return;
+        let parseView=state.view;
+        if(c===0 && ['iSm','iAm'].includes(state.view)) parseView='Nm';
+        if(c===0 && ['iSº','iAº'].includes(state.view)) parseView='Nº';
+        const newNa=parseCellInput(parseView,v,oldNa);
+        if(newNa===oldNa) return;
+        if(['iSm','iAm','iSº','iAº'].includes(state.view)){
+          const snap=JSON.parse(td.dataset.rowSnapshot);
+          const newRow=[...snap];
+          newRow[c]=newNa;
+          for(let k=c+1;k<newRow.length;k++){
+            const origDiff=snap[k]-snap[k-1];
+            newRow[k]=clamp(newRow[k-1]+origDiff,0,96);
+          }
+          state.naRows[r]=newRow;
+        } else {
+          state.naRows[r][c]=newNa;
+        }
+        renderGrid();
+      };
+      tr.appendChild(td);
+    });
+    const tdOp=document.createElement('td');
+    tdOp.classList.add('row-op-cell');
+    const opSelect=document.createElement('select');
+    ['0','1','-1','2','-2','3','-3','4','-4'].forEach(val=>{
+      const o=document.createElement('option');
+      o.value=val;
+      o.textContent=val==='0'?'R':(parseInt(val)>0?`+${val}`:val);
+      opSelect.appendChild(o);
+    });
+    opSelect.onchange=()=>{
+      const delta=parseInt(opSelect.value,10)*12;
+      state.naRows[r]=state.naRows[r].map(x=>x!=null?clamp(x+delta,0,96):null);
+      renderGrid();
+    };
+    tdOp.appendChild(opSelect);
+    tr.appendChild(tdOp);
+    tb.appendChild(tr);
+  });
+  grid.appendChild(tb);
+}
 
 // AUDIO PLAYBACK
 let audioCtx=null; const playingRow={idx:null,nodes:[]}; function ensureCtx(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); } function stopCurrent(){ playingRow.nodes.forEach(n=>{ try{ n.stop(); }catch{} }); playingRow.idx=null; playingRow.nodes=[];} function midiToFreq(m){return 440*Math.pow(2,(m-69)/12);} function playRow(r){ if(playingRow.idx===r){ stopCurrent(); return;} stopCurrent(); ensureCtx(); const row=state.naRows[r], beat=60/state.bpm; let t=audioCtx.currentTime+0.05; row.forEach(n=>{ const osc=audioCtx.createOscillator(), g=audioCtx.createGain(); osc.type='sine'; osc.frequency.value=midiToFreq(n+12); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.8,t+0.02); g.gain.linearRampToValueAtTime(0,t+beat-0.02); osc.connect(g).connect(audioCtx.destination); osc.start(t); osc.stop(t+beat); playingRow.nodes.push(osc); t+=beat;}); playingRow.idx=r;} 
