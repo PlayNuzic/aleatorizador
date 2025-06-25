@@ -19,6 +19,7 @@ repo) i es publica automàticament a **GitHub Pages**:
 | **Editor in-place** | doble clic a una casella ➜ edició del valor; es recalculen notes posteriors. |
 | **Escales i modes** | Rotació lliure de qualsevol mare (*Crom*, *Diat*, *Arm Menor*, etc.). |
 | **Playback** | Synth bàsic amb *Web Audio*; botó ▶ per fila, BPM ajustable. |
+| **Export MIDI** | Cada fila es pot descarregar com a fitxer .mid. |
 | **Presets ràpids** | Barra de 8 memòries (Alt + clic esborra, Shift + clic desa). |
 
 ---

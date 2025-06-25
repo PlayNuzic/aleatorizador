@@ -137,6 +137,11 @@ function renderGrid(){
     btn.style.width='2.2rem';
     btn.onclick=()=>{ playRow(r); renderGrid(); };
     td0.appendChild(btn);
+    const midiBtn=document.createElement('button');
+    midiBtn.textContent='💾';
+    midiBtn.className='midi-btn';
+    midiBtn.onclick=()=>{ downloadRow(r); };
+    td0.appendChild(midiBtn);
     tr.appendChild(td0);
     row.forEach((n,c)=>{
       const td=document.createElement('td');
@@ -236,7 +241,14 @@ function renderGrid(){
 }
 
 // AUDIO PLAYBACK
-let audioCtx=null; const playingRow={idx:null,nodes:[]}; function ensureCtx(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); } function stopCurrent(){ playingRow.nodes.forEach(n=>{ try{ n.stop(); }catch{} }); playingRow.idx=null; playingRow.nodes=[];} function midiToFreq(m){return 440*Math.pow(2,(m-69)/12);} function playRow(r){ if(playingRow.idx===r){ stopCurrent(); return;} stopCurrent(); ensureCtx(); const row=state.naRows[r], beat=60/state.bpm; let t=audioCtx.currentTime+0.05; row.forEach(n=>{ const osc=audioCtx.createOscillator(), g=audioCtx.createGain(); osc.type='sine'; osc.frequency.value=midiToFreq(n+12); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.8,t+0.02); g.gain.linearRampToValueAtTime(0,t+beat-0.02); osc.connect(g).connect(audioCtx.destination); osc.start(t); osc.stop(t+beat); playingRow.nodes.push(osc); t+=beat;}); playingRow.idx=r;} 
+let audioCtx=null; const playingRow={idx:null,nodes:[]}; function ensureCtx(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); } function stopCurrent(){ playingRow.nodes.forEach(n=>{ try{ n.stop(); }catch{} }); playingRow.idx=null; playingRow.nodes=[];} function midiToFreq(m){return 440*Math.pow(2,(m-69)/12);} function playRow(r){ if(playingRow.idx===r){ stopCurrent(); return;} stopCurrent(); ensureCtx(); const row=state.naRows[r], beat=60/state.bpm; let t=audioCtx.currentTime+0.05; row.forEach(n=>{ const osc=audioCtx.createOscillator(), g=audioCtx.createGain(); osc.type='sine'; osc.frequency.value=midiToFreq(n+12); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.8,t+0.02); g.gain.linearRampToValueAtTime(0,t+beat-0.02); osc.connect(g).connect(audioCtx.destination); osc.start(t); osc.stop(t+beat); playingRow.nodes.push(osc); t+=beat;}); playingRow.idx=r;}
+
+// MIDI EXPORT
+function varInt(v){ const bytes=[]; let buffer=v&0x7F; while(v>>=7){ buffer<<=8; buffer|=(v&0x7F)|0x80; } while(true){ bytes.push(buffer&0xFF); if(buffer&0x80) buffer>>=8; else break; } return bytes; }
+
+function rowToMidi(row,bpm){ const tpq=480; const tempo=Math.floor(60000000/bpm); const events=[]; events.push(...varInt(0),0xFF,0x51,0x03,(tempo>>16)&255,(tempo>>8)&255,tempo&255); events.push(...varInt(0),0xC0,0); row.forEach(n=>{ events.push(...varInt(0),0x90,n+12,100); events.push(...varInt(tpq),0x80,n+12,64); }); events.push(...varInt(0),0xFF,0x2F,0x00); const trackLen=events.length; const track=[0x4d,0x54,0x72,0x6b,(trackLen>>24)&255,(trackLen>>16)&255,(trackLen>>8)&255,trackLen&255,...events]; const header=[0x4d,0x54,0x68,0x64,0x00,0x00,0x00,0x06,0x00,0x00,0x00,0x01,0x01,0xE0]; return new Uint8Array([...header,...track]); }
+
+function downloadRow(r){ const data=rowToMidi(state.naRows[r],state.bpm); const blob=new Blob([data],{type:'audio/midi'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`row-${r+1}.mid`; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},100); }
 
 // PRESETS
 function buildPresetBar(){ presetBar.innerHTML=''; presets.forEach((p,i)=>{ const b=document.createElement('button'); b.textContent=i+1; b.className=p?'filled':'empty'; if(i===currentPreset)b.classList.add('selected'); b.onclick=e=>{ if(e.altKey){ presets[i]=null; currentPreset=-1; buildPresetBar(); return;} if(e.shiftKey){ presets[i]=JSON.parse(JSON.stringify(state)); currentPreset=i; buildPresetBar(); return;} if(presets[i]){ state=JSON.parse(JSON.stringify(presets[i])); applyState();}}; presetBar.appendChild(b);});}
