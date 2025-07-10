@@ -1,6 +1,5 @@
 # Generador Modular de Melodías (aleatorizador)
 
-![demo](./images/screenshot.png) <!-- opcional, si vols afegir una captura -->
 
 Aplicació web autosuficient que permet generar, editar i escoltar patrons
 melòdics de forma modular sobre qualsevol escala o mode.

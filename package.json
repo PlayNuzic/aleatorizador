@@ -4,7 +4,7 @@
   "description": "Abans de fer servir Codex per generar codi o fer `git push`, cal executar:",
   "main": "index.js",
   "scripts": {
-    "test": "echo 'no tests'"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -18,4 +18,8 @@
     "url": "https://github.com/PlayNuzic/aleatorizador/issues"
   },
   "homepage": "https://github.com/PlayNuzic/aleatorizador#readme"
+  ,
+  "devDependencies": {
+    "jest": "^29.6.0"
+  }
 }

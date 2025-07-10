@@ -308,3 +308,5 @@ function applyState(){
   renderGrid();
   buildPresetBar();
 }
+
+if (typeof module !== "undefined") { module.exports = { rowToMidi }; }
